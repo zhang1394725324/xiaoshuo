@@ -12,14 +12,12 @@ margin:0;
 font-family:"宋体",serif;
 height:100vh;
 display:flex;
-transition:.3s;
 }
 
 /* 目录 */
 
 #sidebar{
 width:25%;
-min-width:200px;
 background:#fafafa;
 border-right:1px solid #ddd;
 overflow:auto;
@@ -40,37 +38,63 @@ line-height:2;
 font-size:18px;
 }
 
-/* 卷 */
+/* 卷名 */
 
 .volume{
 font-weight:bold;
 padding:8px;
-margin-top:10px;
+margin-top:12px;
 cursor:pointer;
 border-radius:6px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#f5f5f5;
+transition:.2s;
 }
 
-.volume:nth-child(3n+1){background:#ffe4e1}
-.volume:nth-child(3n+2){background:#e0ffff}
-.volume:nth-child(3n+3){background:#f0fff0}
+.volume:hover{
+background:#e8f2ff;
+}
+
+/* 箭头 */
+
+.arrow{
+transition:.3s;
+font-size:12px;
+}
+
+.arrow.open{
+transform:rotate(90deg);
+}
 
 /* 章节 */
 
 .chapter{
-padding:6px 20px;
+padding:6px 22px;
 cursor:pointer;
 }
 
+/* 隔行变色 */
+
+.chapter:nth-child(odd){
+background:#ffffff;
+}
+
+.chapter:nth-child(even){
+background:#f7f7f7;
+}
+
 .chapter:hover{
-background:#eee;
+background:#e6f0ff;
 }
 
 .active{
-background:#4a8cff;
+background:#4a8cff !important;
 color:white;
 }
 
-/* 顶部按钮 */
+/* 按钮 */
 
 .btn{
 padding:6px 14px;
@@ -92,8 +116,12 @@ background:#111;
 color:#eee;
 }
 
-.night .btn{
-background:#333;
+.night .chapter:nth-child(odd){
+background:#1a1a1a;
+}
+
+.night .chapter:nth-child(even){
+background:#222;
 }
 
 </style>
@@ -130,7 +158,6 @@ const txtUrl="novel.txt"
 
 let chapters=[]
 let current=0
-
 let bookName=""
 let authorName=""
 let lastUpdate=""
@@ -197,8 +224,8 @@ loadChapter(0)
 function buildTOC(){
 
 let toc=document.getElementById("toc")
-
 let lastVol=""
+let list
 
 chapters.forEach((c,i)=>{
 
@@ -206,13 +233,23 @@ if(c.volume!=lastVol){
 
 let v=document.createElement("div")
 v.className="volume"
-v.innerText=c.volume
 
-let list=document.createElement("div")
+let arrow=document.createElement("span")
+arrow.className="arrow"
+arrow.innerHTML="▶"
+
+let title=document.createElement("span")
+title.innerText=c.volume
+
+v.appendChild(title)
+v.appendChild(arrow)
+
+list=document.createElement("div")
 
 v.onclick=()=>{
-list.style.display=
-list.style.display=="none"?"block":"none"
+let open=list.style.display!="none"
+list.style.display=open?"none":"block"
+arrow.classList.toggle("open")
 }
 
 toc.appendChild(v)
@@ -226,7 +263,7 @@ a.className="chapter"
 a.innerText=c.title
 a.onclick=()=>loadChapter(i)
 
-toc.lastChild.appendChild(a)
+list.appendChild(a)
 
 })
 
@@ -267,7 +304,7 @@ ${c.content.replace(/\n/g,"<br>")}
 
 function formatTime(t){
 
-if(!t) return ""
+if(!t)return""
 
 let d=new Date(t)
 
